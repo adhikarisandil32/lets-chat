@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 const server = http.createServer(app);
 
 const PORT = +config.PORT;
+const NETWORK_ADDRESS = config.NETWORK_ADDRESS;
 
 const io = new Server(server, {
   cors: {
@@ -13,15 +14,29 @@ const io = new Server(server, {
   },
 });
 
+const updateUserCount = () => {
+  const count = io.engine.clientsCount;
+
+  io.emit("client-count", count);
+};
+
 io.on("connection", (socket) => {
   console.log(`Socket connection successful with id: ${socket.id}`);
+  updateUserCount();
 
   // socket.on("message", (message) => {
   //   socket.emit("message", message);
   // });
-  socket.on("message", (msg) => {
-    io.emit("message", msg);
+  socket.on("message", (data) => {
+    io.emit("message", data);
   });
+
+  socket.on("connect", updateUserCount);
+  socket.on("disconnect", updateUserCount);
 });
 
-server.listen(PORT, () => console.log(`[server] Listening at Port ${PORT}`));
+server.listen(PORT, NETWORK_ADDRESS, () =>
+  console.log(
+    `[server] Listening on network ${NETWORK_ADDRESS ? `http://${NETWORK_ADDRESS}:${PORT} and ` : ""}http://localhost:${PORT}`,
+  ),
+);
