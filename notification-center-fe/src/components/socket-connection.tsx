@@ -14,8 +14,13 @@ const socket = io(import.meta.env.VITE_BACKEND_URL);
 
 function SocketConnection({ username }: SocketConnectionProps) {
   const inputMessageRef = useRef<HTMLInputElement | null>(null);
+  const latestConversationRef = useRef<HTMLDivElement | null>(null);
   const [conversations, setConversations] = useState<IConversation[]>([]);
   const [connectedClient, setConnectedClients] = useState<number>(0);
+
+  useEffect(() => {
+    latestConversationRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [conversations]);
 
   useEffect(() => {
     const messageListener = (data: IConversation) => {
@@ -47,12 +52,12 @@ function SocketConnection({ username }: SocketConnectionProps) {
   return (
     <div className="flex h-screen justify-center items-center">
       <div className="space-y-4 w-80 relative">
-        <div className="border-2 border-black h-90 overflow-auto w-full pb-2">
-          <h2 className="text-center font-bold bg-gray-100 sticky top-0 mb-2">
+        <div className="border-2 border-black h-90 overflow-auto w-full">
+          <h2 className="text-center font-bold bg-gray-100 sticky top-0">
             Conversation Box ({connectedClient} {`${connectedClient > 1 ? "Users" : "User"}`})
           </h2>
-          <div className="px-2 space-y-1 grid grid-cols-6">
-            {conversations.map((conversation, idx) => (
+          <div className="my-1 px-2 space-y-1 grid grid-cols-6">
+            {conversations.map((conversation, idx, initialArr) => (
               <div
                 key={idx}
                 className={`px-2 py-1 rounded-lg ${
@@ -60,6 +65,7 @@ function SocketConnection({ username }: SocketConnectionProps) {
                     ? "bg-blue-800 text-gray-100 col-start-2 col-end-7"
                     : "border border-black col-start-1 col-end-6"
                 }`}
+                ref={idx + 1 === initialArr.length ? latestConversationRef : null}
               >
                 <p className="font-semibold">{conversation.username}: </p>
                 <p>{conversation.message}</p>
