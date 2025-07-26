@@ -1,7 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import { config } from "@src/config/config";
+import { config } from "@src/config/config.js";
 
 const app = express();
 
@@ -10,7 +10,11 @@ app.use(morgan("tiny"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get(`${config.API_PREFIX}`, (req, res) => {
+// function getIpAddress() {}
+
+// const ipAddress = getIpAddress();
+
+app.get(`${config.API_PREFIX}`, (_, res) => {
   res.json({ Test: "success" });
   return;
 });

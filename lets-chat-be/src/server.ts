@@ -1,7 +1,8 @@
-import { app } from "./app";
+import { app } from "./app.js";
 import http from "http";
-import { config } from "./config/config";
+import { config } from "./config/config.js";
 import { Server } from "socket.io";
+import chalk from "chalk";
 
 const server = http.createServer(app);
 
@@ -35,8 +36,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", updateUserCount);
 });
 
-server.listen(PORT, NETWORK_ADDRESS, () =>
+server.listen(PORT, NETWORK_ADDRESS, () => {
   console.log(
-    `[server] Listening on network ${NETWORK_ADDRESS ? `http://${NETWORK_ADDRESS}:${PORT} and ` : ""}http://localhost:${PORT}`,
-  ),
-);
+    `
+${chalk.green.bold("Express Server")} ready at
+${chalk.bold("-→")} ${chalk.bold("Local: ")} ${chalk.blue(`http://localhost:${PORT}`)}
+${NETWORK_ADDRESS ? `${chalk.bold("-→")} ${chalk.bold("Network: ")} http://${NETWORK_ADDRESS}:${PORT}` : ``}
+    `,
+  );
+});
