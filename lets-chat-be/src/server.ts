@@ -1,12 +1,14 @@
-import { app } from "./app";
+import { app } from "./app.js";
 import http from "http";
-import { config } from "./config/config";
+import { config } from "./config/config.js";
 import { Server } from "socket.io";
+import chalk from "chalk";
+import { getNetworkIps } from "./utils/get-network-ips.js";
 
 const server = http.createServer(app);
 
 const PORT = +config.PORT;
-const NETWORK_ADDRESS = config.NETWORK_ADDRESS;
+const NETWORK_ADDRESSES = getNetworkIps();
 
 const io = new Server(server, {
   cors: {
@@ -35,8 +37,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", updateUserCount);
 });
 
-server.listen(PORT, NETWORK_ADDRESS, () =>
+server.listen(PORT, () => {
   console.log(
-    `[server] Listening on network ${NETWORK_ADDRESS ? `http://${NETWORK_ADDRESS}:${PORT} and ` : ""}http://localhost:${PORT}`,
-  ),
-);
+    `
+${chalk.green.bold("Express Server")} ready at
+${chalk.green.bold.green("-→")} ${chalk.bold("Local: ")}   ${chalk.blue(`http://localhost:${PORT}`)}
+${NETWORK_ADDRESSES && NETWORK_ADDRESSES.length > 0 ? NETWORK_ADDRESSES.map((address) => `${chalk.bold.green("-→")} ${chalk.bold("Network: ")} ${chalk.blue(`http://${address}:${PORT}`)}`).join("\n") : ""}
+    `,
+  );
+});
